@@ -10,4 +10,4 @@ const client = new pg.Client({
   ssl      : settings.ssl
 });
 
-module.exports = client
+module.exports = client;

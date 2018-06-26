@@ -1,4 +1,4 @@
-const client = require("./db/db.create-pg-client.js")
+const knex = require("./db/db.create-knex-client.js")
 let cliArg = process.argv[2];
 
 // node lookup_people.js Paul
@@ -15,35 +15,32 @@ let formatDate = (dateObj) => {
   if(mo < 10) mo = '0' + mo;
   if(day < 10) day = '0' + day;
   return `${yr}-${mo}-${day}`;
-}
+};
 
 let printResult = (result) => {
-  console.log(`Found ${result.rows.length} person(s) by the name '${cliArg}':`);
-  result.rows.forEach((elem, i) => {
+  console.log(`Found ${result.length} person(s) by the name '${cliArg}':`);
+  Object.keys(result).forEach((key, i) => {
+    curRow = result[key];
     // let d = new Date(elem.birthdate);
-    let dateStr = formatDate(elem.birthdate);
-    console.log(`- ${i + 1}: ${elem.first_name} ${elem.last_name}, born '${dateStr}'`);
+    let dateStr = formatDate(curRow.birthdate);
+    console.log(`- ${i + 1}: ${curRow.first_name} ${curRow.last_name}, born '${dateStr}'`);
   })
 };
 
-client.connect((err) => {
-  if (err) {
+knex.select("*")
+.from("famous_people")
+.where("first_name", "like", "%" + cliArg + "%")
+.orWhere("last_name", "like", "%" + cliArg + "%")
+.timeout(1000)
+.asCallback((err, result) =>{
+  if(err){
     return console.error("Connection Error", err);
   }
   console.log("Searching ...");
-
-  let queryStr = `
-    SELECT *
-    FROM famous_people
-    WHERE first_name LIKE '%${cliArg}%'
-    OR last_name LIKE '%${cliArg}%'
-  `;
-
-  client.query(queryStr, (err, result) => {
-    if (err) {
-      return console.error("error running query", err);
-    }
-    printResult(result);
-    client.end();
-  });
+  printResult(result);
+}).finally(() => {
+  knex.destroy();
 });
+
+
+

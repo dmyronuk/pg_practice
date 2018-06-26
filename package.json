@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/dmyronuk/pg_practice#readme",
   "dependencies": {
+    "knex": "^0.14.6",
     "pg": "^7.4.3"
   }
 }

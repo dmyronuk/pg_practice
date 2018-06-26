@@ -17,11 +17,20 @@ let formatDate = (dateObj) => {
   return `${yr}-${mo}-${day}`;
 }
 
+let printResult = (result) => {
+  console.log(`Found ${result.rows.length} person(s) by the name '${cliArg}':`);
+  result.rows.forEach((elem, i) => {
+    // let d = new Date(elem.birthdate);
+    let dateStr = formatDate(elem.birthdate);
+    console.log(`- ${i + 1}: ${elem.first_name} ${elem.last_name}, born '${dateStr}'`);
+  })
+};
+
 client.connect((err) => {
   if (err) {
     return console.error("Connection Error", err);
   }
-  console.log("Searching ...")
+  console.log("Searching ...");
 
   let queryStr = `
     SELECT *
@@ -34,13 +43,7 @@ client.connect((err) => {
     if (err) {
       return console.error("error running query", err);
     }
-
-    console.log(`Found ${result.rows.length} person(s) by the name '${cliArg}':`);
-    result.rows.forEach((elem, i) => {
-      // let d = new Date(elem.birthdate);
-      let dateStr = formatDate(elem.birthdate);
-      console.log(`- ${i + 1}: ${elem.first_name} ${elem.last_name}, born '${dateStr}'`);
-    })
+    printResult(result);
     client.end();
   });
 });
